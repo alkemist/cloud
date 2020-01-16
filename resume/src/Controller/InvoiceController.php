@@ -13,6 +13,7 @@ use Konekt\PdfInvoice\InvoicePrinter;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -146,10 +147,45 @@ class InvoiceController extends EasyAdminController
         $invoice->setTotalHt($invoice->getTjm() * $invoice->getDaysCount());
     }
 
+    // Creates the form object passed to the 'edit' and 'new' templates (using the
+    // form builder created by 'createEntityFormBuilder()')
+    /*protected function createEntityForm($entity, array $entityProperties, $view)
+    {
+        dump('createEntityForm');
+        dump($entityProperties);
+        dump($view);
+        return parent::createEntityForm($entity, $entityProperties, $view);
+    }*/
+
+    // Creates the form builder used to create the form rendered in the
+    // create and edit actions
+    protected function createEntityFormBuilder($entity, $view)
+    {
+        /** @var FormBuilderInterface $formBuilder */
+        $formBuilder = parent::createEntityFormBuilder($entity, $view);
+        $formBuilder->get('company');
+
+        dump($formBuilder->get('company'));
+        return $formBuilder;
+    }
+
+    // Returns the list of form options used by 'createEntityFormBuilder()'
+    /*protected function getEntityFormOptions($entity, $view)
+    {
+        dump('getEntityFormOptions');
+        dump(parent::getEntityFormOptions($entity, $view));
+        return parent::getEntityFormOptions($entity, $view);
+    }*/
+
     /**
      * @param Invoice $entity
      */
+    // It persists and flushes the given Doctrine entity. It allows to modify the entity
+    // before/after being saved in the database (e.g. to transform a DTO into a Doctrine entity)
     protected function persistEntity($entity){
+        dump('persistEntity');
+        dump($entity);
+
         $this->calculTotalHt($entity);
         $this->declarationService->attachInvoice($entity);
 
@@ -165,7 +201,12 @@ class InvoiceController extends EasyAdminController
     /**
      * @param Invoice $entity
      */
+    // It flushes the given Doctrine entity to save its changes. It allows to modify
+    // the entity before it's saved in the database.
     protected function updateEntity($entity){
+        dump('updateEntity');
+        dump($entity);
+
         $this->calculTotalHt($entity);
         $this->declarationService->attachInvoice($entity);
 
